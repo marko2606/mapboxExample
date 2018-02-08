@@ -170,10 +170,10 @@ class App extends React.Component {
     renderItem ({ item, index }) {
         return (
             <View style={styles.exampleListItemBorder}>
-                <TouchableOpacity onPress={() => this.onExamplePress(index)}>
-                    <View style={styles.exampleListItem}>
-                        <Text style={styles.exampleListLabel}>{item.label}</Text>
-                        <Icon name='keyboard-arrow-right' />
+                <TouchableOpacity onPress={ () => this.onExamplePress(index) }>
+                    <View style={ styles.exampleListItem }>
+                        <Text style={ styles.exampleListLabel }>{ item.label }</Text>
+                        <Icon name='keyboard-arrow-right'/>
                     </View>
                 </TouchableOpacity>
             </View>

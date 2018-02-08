@@ -47,6 +47,17 @@ const layerStyles = MapboxGL.StyleSheet.create({
     }
 });
 
+import exampleIcon from '../assets/ic_ship_laden.png';
+
+const styles = MapboxGL.StyleSheet.create({
+    icon: {
+        iconImage: exampleIcon,
+        iconAllowOverlap: true,
+        iconSize: 1,
+        iconRotate: 90
+    }
+});
+
 class EarthQuakes extends React.Component {
     static propTypes = {
         ...BaseExamplePropTypes
@@ -97,24 +108,13 @@ class EarthQuakes extends React.Component {
 
                     <MapboxGL.ShapeSource
                         id='earthquakes'
-
-                        shape={ this.state.geoJSON }>
-
+                        onPress={ (e) => console.log('can\'t touch this   =', e.nativeEvent) }
+                        shape={ this.state.geoJSON }
+                    >
                         <MapboxGL.SymbolLayer
-                            id='pointCount'
-                            style={ layerStyles.clusterCount }/>
-
-                        <MapboxGL.CircleLayer
-                            id='clusteredPoints'
-                            belowLayerID='pointCount'
-                            filter={ ['has', 'point_count'] }
-                            style={ layerStyles.clusteredPoints }/>
-
-                        <MapboxGL.CircleLayer
-                            id='singlePoint'
-                            filter={ ['!has', 'point_count'] }
-                            style={ layerStyles.singlePoint }/>
-
+                            id='symbolLocationSymbols'
+                            style={ styles.icon }
+                        />
                     </MapboxGL.ShapeSource>
                 </MapboxGL.MapView>
             </Page>
