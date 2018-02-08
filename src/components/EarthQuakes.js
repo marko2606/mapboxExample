@@ -6,88 +6,120 @@ import Page from './common/Page';
 
 import sheet from '../styles/sheet';
 import { SF_OFFICE_COORDINATE } from '../utils';
+import { data } from '../data';
 
 const layerStyles = MapboxGL.StyleSheet.create({
-  singlePoint: {
-    circleColor: 'green',
-    circleOpacity: 0.84,
-    circleStrokeWidth: 2,
-    circleStrokeColor: 'white',
-    circleRadius: 5,
-    circlePitchAlignment: MapboxGL.CirclePitchAlignment.Map,
-  },
+    singlePoint: {
+        circleColor: 'green',
+        circleOpacity: 0.84,
+        circleStrokeWidth: 2,
+        circleStrokeColor: 'white',
+        circleRadius: 5,
+        circlePitchAlignment: MapboxGL.CirclePitchAlignment.Map
+    },
 
-  clusteredPoints: {
-    circlePitchAlignment: MapboxGL.CirclePitchAlignment.Map,
-    circleColor: MapboxGL.StyleSheet.source([
-      [25, 'yellow'],
-      [50, 'red'],
-      [75, 'blue'],
-      [100, 'orange'],
-      [300, 'pink'],
-      [750, 'white'],
-    ], 'point_count', MapboxGL.InterpolationMode.Exponential),
+    clusteredPoints: {
+        circlePitchAlignment: MapboxGL.CirclePitchAlignment.Map,
+        circleColor: MapboxGL.StyleSheet.source([
+            [25, 'yellow'],
+            [50, 'red'],
+            [75, 'blue'],
+            [100, 'orange'],
+            [300, 'pink'],
+            [750, 'white']
+        ], 'point_count', MapboxGL.InterpolationMode.Exponential),
 
-    circleRadius: MapboxGL.StyleSheet.source([
-      [0, 15],
-      [100, 20],
-      [750, 30],
-    ], 'point_count', MapboxGL.InterpolationMode.Exponential),
+        circleRadius: MapboxGL.StyleSheet.source([
+            [0, 15],
+            [100, 20],
+            [750, 30]
+        ], 'point_count', MapboxGL.InterpolationMode.Exponential),
 
-    circleOpacity: 0.84,
-    circleStrokeWidth: 2,
-    circleStrokeColor: 'white',
-  },
+        circleOpacity: 0.84,
+        circleStrokeWidth: 2,
+        circleStrokeColor: 'white'
+    },
 
-  clusterCount: {
-    textField: '{point_count}',
-    textSize: 12,
-    textPitchAlignment: MapboxGL.TextPitchAlignment.Map,
-  },
+    clusterCount: {
+        textField: '{point_count}',
+        textSize: 12,
+        textPitchAlignment: MapboxGL.TextPitchAlignment.Map
+    }
 });
 
 class EarthQuakes extends React.Component {
-  static propTypes = {
-    ...BaseExamplePropTypes,
-  };
+    static propTypes = {
+        ...BaseExamplePropTypes
+    };
 
-  render () {
-    return (
-      <Page {...this.props}>
-        <MapboxGL.MapView
-            zoomLevel={6}
-            pitch={45}
-            centerCoordinate={SF_OFFICE_COORDINATE}
-            style={sheet.matchParent}
-            styleURL={MapboxGL.StyleURL.Dark}>
+    state = {
+        geoJSON: null
+    };
 
-            <MapboxGL.ShapeSource
-              id='earthquakes'
-              cluster
-              clusterRadius={50}
-              clusterMaxZoom={14}
-              url='https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson'>
+    componentWillMount() {
+        this.createGeoJSON(data)
+    }
 
-              <MapboxGL.SymbolLayer
-                id='pointCount'
-                style={layerStyles.clusterCount} />
+    createGeoJSON(data) {
+        const geoJSON = {
+            type: 'FeatureCollection',
+            features: []
+        };
 
-              <MapboxGL.CircleLayer
-                id='clusteredPoints'
-                belowLayerID='pointCount'
-                filter={['has', 'point_count']}
-                style={layerStyles.clusteredPoints} />
+        geoJSON.features = data.Entries.map(item => {
+            return {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [
+                        item.Entries[0].Location.Longitude,
+                        item.Entries[0].Location.Latitude
+                    ]
+                }
+            }
+        });
+        console.log(geoJSON);
+        this.setState({ geoJSON })
+    }
 
-              <MapboxGL.CircleLayer
-                id='singlePoint'
-                filter={['!has', 'point_count']}
-                style={layerStyles.singlePoint} />
+    render() {
+        if (!this.state.geoJSON) {
+            return false;
+        }
+        return (
+            <Page { ...this.props }>
+                <MapboxGL.MapView
+                    zoomLevel={ 6 }
+                    pitch={ 45 }
+                    centerCoordinate={ SF_OFFICE_COORDINATE }
+                    style={ sheet.matchParent }
+                    styleURL={ MapboxGL.StyleURL.Dark }>
 
-            </MapboxGL.ShapeSource>
-        </MapboxGL.MapView>
-      </Page>
-    );
-  }
+                    <MapboxGL.ShapeSource
+                        id='earthquakes'
+
+                        shape={ this.state.geoJSON }>
+
+                        <MapboxGL.SymbolLayer
+                            id='pointCount'
+                            style={ layerStyles.clusterCount }/>
+
+                        <MapboxGL.CircleLayer
+                            id='clusteredPoints'
+                            belowLayerID='pointCount'
+                            filter={ ['has', 'point_count'] }
+                            style={ layerStyles.clusteredPoints }/>
+
+                        <MapboxGL.CircleLayer
+                            id='singlePoint'
+                            filter={ ['!has', 'point_count'] }
+                            style={ layerStyles.singlePoint }/>
+
+                    </MapboxGL.ShapeSource>
+                </MapboxGL.MapView>
+            </Page>
+        );
+    }
 }
 
 export default EarthQuakes;
