@@ -6,7 +6,7 @@ import Page from './common/Page';
 
 import sheet from '../styles/sheet';
 import { SF_OFFICE_COORDINATE } from '../utils';
-import { data } from '../data';
+import { data } from '../dataCopetitionAll';
 
 const layerStyles = MapboxGL.StyleSheet.create({
     singlePoint: {
